@@ -1,0 +1,17 @@
+{
+  "projeto": "Diário de Classe Hospitalar",
+  "qa_responsavel": "Vinicius",
+  "iniciais_evidencia": "VF",
+  "prefixo_massa": "QA-V-",
+  "base_cpf_massa": "903",
+  "faixa_defeitos": "DEF-DCH-101+",
+  "branch_em_teste": "desenvolvimento",
+  "repo_aplicacao": "../diario-classe-hospitalar-hml/admin-diario-hospitalar",
+  "pastas_somente_leitura": ["../diario-classe-hospitalar-hml"],
+  "documentos": "../diario-classe-hospitalar-hml/2 - Diário de Classe Hospitalar",
+  "redmine_projeto": "inovacao_em_redf",
+  "hosts_locais": ["localhost", "127.0.0.1", "::1"],
+  "hosts_hml": ["loginteste.recife.pe.gov.br"],
+  "hosts_producao": [],
+  "_leia": "repo_aplicacao e pastas_somente_leitura: somente leitura (hook). hosts_hml só são liberados com QA_ALLOW_HML=1; falta o host da aplicação em HML. hosts_producao: o Vinicius preenche à mão com o host de produção do Conecta (o agente não grava esse nome). Mesmo vazio, qualquer URL fora de hosts_locais/hosts_hml é barrada."
+}

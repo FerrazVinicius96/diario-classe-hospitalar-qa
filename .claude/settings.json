@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Edit(docs/**)",
+      "Write(docs/**)",
+      "Edit(**/*.docx)",
+      "Write(**/*.docx)",
+      "Edit(docs/**/*.xlsx)",
+      "Write(docs/**/*.xlsx)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Write|Edit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/guard.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "itens": [
+    {
+      "tabela": "(banco)",
+      "chave": "educ_diariohospitalar_qa",
+      "acao": "criado",
+      "observacao": "banco inteiro de QA; pode ser recriado"
+    },
+    {
+      "tabela": "tb_usuarios",
+      "chave": "admin principal",
+      "md": "MD-01",
+      "acao": "senha local redefinida",
+      "observacao": "só neste banco de QA; senha em .env (QA_ADMIN_SENHA)"
+    },
+    {
+      "tabela": "tb_usuarios",
+      "chave": "903.000.001-54",
+      "md": "MD-02",
+      "acao": "criado",
+      "nome": "QA-V-Gestao Ativa",
+      "perfil": "Gestão",
+      "ativo": true
+    },
+    {
+      "tabela": "tb_usuarios",
+      "chave": "903.000.002-35",
+      "md": "MD-03",
+      "acao": "criado",
+      "nome": "QA-V-Professor Ativo",
+      "perfil": "Professor",
+      "ativo": true
+    },
+    {
+      "tabela": "tb_usuarios",
+      "chave": "903.000.003-16",
+      "md": "MD-04",
+      "acao": "criado",
+      "nome": "QA-V-Professor Inativo",
+      "perfil": "Professor",
+      "ativo": false
+    },
+    {
+      "tabela": "tb_usuarios",
+      "chave": "903.000.004-05",
+      "md": "MD-05",
+      "acao": "criado",
+      "nome": "QA-V-Admin Secundario",
+      "perfil": "Administrador",
+      "ativo": true
+    }
+  ],
+  "ambiente": "local",
+  "banco": "educ_diariohospitalar_qa",
+  "app": "app-ce1aa37",
+  "atualizado_em": "2026-10-09T09:57:53"
+}

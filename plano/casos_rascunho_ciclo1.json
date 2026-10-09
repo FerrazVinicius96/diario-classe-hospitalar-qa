@@ -1,0 +1,300 @@
+{
+  "_leia": "RASCUNHO para revisão do Vinicius. Depois de revisado, ele copia para docs/casos.json (pasta protegida contra escrita do agente). Sem colunas de veredito: Resultado, Severidade e Natureza são preenchidos só pelo QA.",
+  "versao_rascunho": "2026-10-09",
+  "branch": "desenvolvimento",
+  "versao_app": "ce1aa37",
+  "fontes": [
+    "Épico E1 Autenticação e Acesso (02/10/2026)",
+    "Documento de Requisitos v2.0: seção 2 (matriz), 3.1 (RF-01 a RF-04, RN-04.1), RNF-02, RNF-03",
+    "Código da desenvolvimento ce1aa37 (somente leitura): Welcome.php, hooks/Authentic.php, funcoes_helper.php, views/login.php, views/acesso_negado.php"
+  ],
+  "massa": [
+    {"id": "MD-01", "descricao": "Admin principal (CPF-sentinela da aplicação, senha local no .env)", "perfil": "Administrador", "cpf": "000.000.000-00", "situacao": "ativo", "origem": "seed da aplicação"},
+    {"id": "MD-02", "descricao": "QA-V-Gestao Ativa", "perfil": "Gestão", "cpf": "903.000.001-54", "email": "qa.v.gestao@educ.rec.br", "situacao": "ativo"},
+    {"id": "MD-03", "descricao": "QA-V-Professor Ativo", "perfil": "Professor", "cpf": "903.000.002-35", "email": "qa.v.professor@educ.rec.br", "situacao": "ativo"},
+    {"id": "MD-04", "descricao": "QA-V-Professor Inativo", "perfil": "Professor", "cpf": "903.000.003-16", "email": "qa.v.inativo@educ.rec.br", "situacao": "inativo"},
+    {"id": "MD-05", "descricao": "QA-V-Admin Secundario", "perfil": "Administrador", "cpf": "903.000.004-05", "email": "qa.v.admin@educ.rec.br", "situacao": "ativo"},
+    {"id": "MD-06", "descricao": "CPF sem cadastro no sistema", "perfil": null, "cpf": "903.000.005-88", "situacao": "sem cadastro"}
+  ],
+  "casos": [
+    {
+      "id": "CT-TRV-01", "hu": "Transversal", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RNF-02",
+      "cenario": "Smoke: aplicação responde em http://localhost/ e exibe a tela de login",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "sem sessão", "massa": [],
+      "pre_condicoes": ["App da desenvolvimento servida em localhost porta 80 (nunca em outra porta)"],
+      "passos": ["Abrir http://localhost/"],
+      "esperado": "HTTP 200; título 'Diário de Classe Hospitalar'; formulário com CPF e Senha.",
+      "dependencia": null, "observacao": "Falha aqui suspende a execução."
+    },
+    {
+      "id": "CT-001-01", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-01, HU-001 crit. 1",
+      "cenario": "Tela de acesso sem sessão ativa",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "sem sessão", "massa": [],
+      "pre_condicoes": ["Navegador sem cookies do sistema"],
+      "passos": ["Abrir http://localhost/"],
+      "esperado": "Botão 'Entrar com Conecta Recife' e o aviso 'O acesso é restrito a profissionais autorizados.'",
+      "dependencia": null, "observacao": "Decisão aceita: CPF e senha na própria tela (ROPC), em vez de redirect (HU-001 crit. 2)."
+    },
+    {
+      "id": "CT-001-02", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RNF-02",
+      "cenario": "URL interna acessada sem sessão",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "sem sessão", "massa": [],
+      "pre_condicoes": ["Navegador sem cookies do sistema"],
+      "passos": ["Abrir diretamente /dashboard, /usuario, /permissoes, /auditoria, /catalogo, /escola, /recurso e /tipoaula"],
+      "esperado": "Cada URL redireciona para /welcome sem exibir dados; registrar status e URL final de cada uma.",
+      "dependencia": null, "observacao": null
+    },
+    {
+      "id": "CT-001-03", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-02, HU-001 crit. 4",
+      "cenario": "Login do admin principal com senha local",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-01"],
+      "pre_condicoes": ["Senha do MD-01 em .env (QA_ADMIN_SENHA)"],
+      "passos": ["Informar CPF e senha do MD-01", "Clicar em 'Entrar com Conecta Recife'"],
+      "esperado": "Redireciona para /dashboard; menu do perfil Administrador; nome do usuário no topo.",
+      "dependencia": null, "observacao": "Único login possível no local enquanto o Conecta não tiver client_secret."
+    },
+    {
+      "id": "CT-001-04", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-01",
+      "cenario": "Senha incorreta",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-01"],
+      "pre_condicoes": [],
+      "passos": ["Informar CPF do MD-01 e uma senha errada fictícia", "Enviar"],
+      "esperado": "URL /welcome/credenciaisInvalidas; 'Credenciais inválidas.' e 'CPF ou senha incorretos. Verifique os dados e tente novamente.'; nenhuma sessão criada (/dashboard volta ao login).",
+      "dependencia": null, "observacao": "Uma tentativa só; sem força bruta."
+    },
+    {
+      "id": "CT-001-05", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-01",
+      "cenario": "Envio com CPF ou senha em branco",
+      "prioridade": "Média", "tipo": "automatizado", "perfil": "sem sessão", "massa": [],
+      "pre_condicoes": [],
+      "passos": ["Enviar o formulário com CPF vazio (removendo o required pelo teste)", "Repetir com senha vazia"],
+      "esperado": "Permanece na tela de login com mensagem de campo obrigatório para o campo vazio.",
+      "dependencia": null, "observacao": null
+    },
+    {
+      "id": "CT-001-06", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-02",
+      "cenario": "CPF com e sem máscara",
+      "prioridade": "Média", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-01"],
+      "pre_condicoes": [],
+      "passos": ["Postar o login com CPF só com dígitos", "Postar com CPF mascarado"],
+      "esperado": "Os dois formatos levam ao mesmo resultado (dashboard).",
+      "dependencia": null, "observacao": null
+    },
+    {
+      "id": "CT-001-07", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-01, RF-02, HU-001 crit. 3 e 4",
+      "cenario": "Login pelo Conecta de Gestão e de Professor cadastrados e ativos",
+      "prioridade": "Alta", "tipo": "manual", "perfil": "Gestão, Professor", "massa": ["MD-02", "MD-03"],
+      "pre_condicoes": ["Client do Conecta com client_secret", "Contas de teste no Conecta"],
+      "passos": ["Entrar com o CPF e a senha do Conecta de cada perfil"],
+      "esperado": "Dashboard com o menu do perfil do cadastro interno.",
+      "dependencia": "client_secret do Conecta (sem data, segundo o Gilberto)", "observacao": null
+    },
+    {
+      "id": "CT-001-08", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-001 crit. 5",
+      "cenario": "Sair encerra a sessão no sistema",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-01"],
+      "pre_condicoes": ["Logado como MD-01"],
+      "passos": ["Clicar em Sair", "Abrir /dashboard", "Usar o Voltar do navegador"],
+      "esperado": "Após Sair, URL /welcome?saiu=1; /dashboard e o Voltar não mostram dados e voltam ao login.",
+      "dependencia": null, "observacao": null
+    },
+    {
+      "id": "CT-001-09", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-001 crit. 5",
+      "cenario": "Sair encerra a sessão no Conecta Recife",
+      "prioridade": "Média", "tipo": "manual", "perfil": "Gestão ou Professor", "massa": ["MD-03"],
+      "pre_condicoes": ["Login feito pelo Conecta"],
+      "passos": ["Entrar pelo Conecta", "Sair", "Conferir no Conecta se a sessão foi encerrada"],
+      "esperado": "Sessão do Keycloak encerrada (logout com refresh_token retorna 204).",
+      "dependencia": "client_secret do Conecta", "observacao": null
+    },
+    {
+      "id": "CT-001-10", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-04, HU-001 crit. 6",
+      "cenario": "Login e logout registrados na auditoria",
+      "prioridade": "Média", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-01"],
+      "pre_condicoes": [],
+      "passos": ["Entrar e sair com MD-01", "Consultar a tela Auditoria (ou tb_log no banco local)"],
+      "esperado": "Registros 'login' e 'logout' com usuário, data e hora.",
+      "dependencia": null, "observacao": "Relacionado à HU-063 (Ednaldo)."
+    },
+    {
+      "id": "CT-001-11", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RNF-02",
+      "cenario": "Identificador de sessão trocado no login",
+      "prioridade": "Média", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-01"],
+      "pre_condicoes": [],
+      "passos": ["Anotar o cookie de sessão antes do login (só um hash, sem gravar o valor)", "Entrar", "Comparar"],
+      "esperado": "O identificador muda após o login.",
+      "dependencia": null, "observacao": "Cobre o reteste do DEF-DCH-016 (Ricardo); combinar com ele antes de reportar."
+    },
+    {
+      "id": "CT-001-12", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RNF-02",
+      "cenario": "POST de login sem token CSRF",
+      "prioridade": "Média", "tipo": "automatizado", "perfil": "sem sessão", "massa": ["MD-01"],
+      "pre_condicoes": [],
+      "passos": ["Enviar POST /welcome/processarLogin sem o campo CSRF"],
+      "esperado": "Requisição recusada (HTTP 403) e nenhuma sessão criada.",
+      "dependencia": null, "observacao": "Cobre parte do DEF-DCH-006 (Ricardo)."
+    },
+    {
+      "id": "CT-001-13", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-001 crit. 4",
+      "cenario": "Usuário já logado abre a tela de login",
+      "prioridade": "Baixa", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-01"],
+      "pre_condicoes": ["Logado como MD-01"],
+      "passos": ["Abrir /welcome"],
+      "esperado": "Redireciona para /dashboard.",
+      "dependencia": null, "observacao": null
+    },
+    {
+      "id": "CT-001-14", "hu": "HU-001", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-01",
+      "cenario": "Conecta Recife indisponível",
+      "prioridade": "Baixa", "tipo": "manual", "perfil": "Professor", "massa": ["MD-03"],
+      "pre_condicoes": ["Conecta inacessível a partir do ambiente local"],
+      "passos": ["Tentar entrar com um CPF que não é o sentinela"],
+      "esperado": "Mensagem que indique a falha. A HU não define o texto: registrar o que aparece.",
+      "dependencia": null, "observacao": "Leitura do código: a falha de conexão cai em 'Credenciais inválidas' (Welcome.php:55). Ponto a confirmar com o Vinicius se vale levar à Adriana."
+    },
+    {
+      "id": "CT-002-01", "hu": "HU-002", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-02, seção 2",
+      "cenario": "Menu do Administrador",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-01"],
+      "pre_condicoes": ["Matriz padrão (não salvar Permissões durante o teste)"],
+      "passos": ["Entrar como MD-01", "Listar os itens do menu"],
+      "esperado": "Painel, Usuários, Permissões, Catálogo, Recursos, Tipos de aula, Auditoria e Escolas de Origem.",
+      "dependencia": null, "observacao": null
+    },
+    {
+      "id": "CT-002-02", "hu": "HU-002", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-02, seção 2",
+      "cenario": "Menu da Gestão conforme a matriz",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "Gestão", "massa": ["MD-02"],
+      "pre_condicoes": ["Sessão de Gestão (Conecta, ou empréstimo do CPF-sentinela com aprovação do Vinicius)"],
+      "passos": ["Entrar como Gestão", "Listar o menu e os botões de cada tela"],
+      "esperado": "Conforme a seção 2 do Requisitos: catálogo e recursos em leitura; usuários só para criar Professor; trilha de auditoria; escolas de origem.",
+      "dependencia": "Login de Gestão", "observacao": "Leitura do código: a matriz padrão dá à Gestão 'nada' em Recursos e Tipos de aula, e a seção 2 prevê 'Leitura'. Ponto a confirmar."
+    },
+    {
+      "id": "CT-002-03", "hu": "HU-002", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-02, seção 2",
+      "cenario": "Menu do Professor conforme a matriz",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "Professor", "massa": ["MD-03"],
+      "pre_condicoes": ["Sessão de Professor (Conecta, ou empréstimo do CPF-sentinela com aprovação)"],
+      "passos": ["Entrar como Professor", "Listar o menu"],
+      "esperado": "Sem Usuários, Permissões e Auditoria; catálogo e recursos em leitura; escolas de origem.",
+      "dependencia": "Login de Professor", "observacao": "Mesmo ponto do CT-002-02 sobre Recursos e Tipos de aula em leitura."
+    },
+    {
+      "id": "CT-002-04", "hu": "HU-002", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-002 crit. 3, RNF-02",
+      "cenario": "Acesso direto por URL a tela não permitida",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "Gestão, Professor", "massa": ["MD-02", "MD-03"],
+      "pre_condicoes": ["Sessão do perfil"],
+      "passos": ["Professor: abrir /usuario, /permissoes, /auditoria", "Gestão: abrir /permissoes"],
+      "esperado": "HTTP 403 'Acesso negado', sem dados da tela.",
+      "dependencia": "Login de Gestão e Professor", "observacao": null
+    },
+    {
+      "id": "CT-002-05", "hu": "HU-002", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-002 crit. 2, RNF-02",
+      "cenario": "Ação não permitida enviada direto (POST)",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "Professor", "massa": ["MD-03"],
+      "pre_condicoes": ["Sessão de Professor com token CSRF válido"],
+      "passos": ["Enviar POST de salvar em Usuários, Catálogo e Escolas (inativar)"],
+      "esperado": "HTTP 403 e nenhum registro alterado.",
+      "dependencia": "Login de Professor", "observacao": "Massa alvo só com prefixo QA-V-."
+    },
+    {
+      "id": "CT-002-06", "hu": "HU-002", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-002 crit. 6",
+      "cenario": "Mudança de perfil vale no próximo acesso",
+      "prioridade": "Média", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-01", "MD-05"],
+      "pre_condicoes": ["MD-05 logado em outra sessão"],
+      "passos": ["Admin muda o perfil do MD-05 para Professor", "MD-05 continua navegando", "MD-05 sai e entra de novo"],
+      "esperado": "A sessão aberta mantém o perfil antigo; o novo login aplica o novo perfil.",
+      "dependencia": "Login do MD-05 (Conecta ou empréstimo)", "observacao": null
+    },
+    {
+      "id": "CT-002-07", "hu": "HU-002", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-002 crit. 4",
+      "cenario": "Gestão tem todas as permissões do Professor",
+      "prioridade": "Média", "tipo": "automatizado", "perfil": "Gestão, Professor", "massa": ["MD-02", "MD-03"],
+      "pre_condicoes": [],
+      "passos": ["Comparar a matriz efetiva dos dois perfis módulo a módulo"],
+      "esperado": "Tudo o que o Professor pode, a Gestão também pode.",
+      "dependencia": "Login de Gestão e Professor", "observacao": null
+    },
+    {
+      "id": "CT-002-08", "hu": "HU-002", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-002 crit. 5, RN-12",
+      "cenario": "Administrador sem acesso a telas pedagógicas e campos de saúde",
+      "prioridade": "Baixa", "tipo": "manual", "perfil": "Administrador", "massa": ["MD-01"],
+      "pre_condicoes": [],
+      "passos": ["Procurar telas de frequência, aula, parecer, boletim, documentos e estudante"],
+      "esperado": "Nenhuma acessível ao Administrador.",
+      "dependencia": "Telas pedagógicas ainda não estão na desenvolvimento", "observacao": "Reavaliar quando as branches de Estudantes e Professor forem mergeadas."
+    },
+    {
+      "id": "CT-002-09", "hu": "HU-002", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RF-02",
+      "cenario": "Módulo novo ausente da matriz salva é completado no login",
+      "prioridade": "Média", "tipo": "automatizado", "perfil": "Gestão, Professor", "massa": ["MD-02", "MD-03"],
+      "pre_condicoes": ["Banco local com um módulo removido da matriz do perfil (registrar no manifest para restaurar)"],
+      "passos": ["Entrar com o perfil", "Conferir o menu e o acesso ao módulo"],
+      "esperado": "O módulo ausente recebe o padrão (completarPermissoes) e o acesso segue a matriz.",
+      "dependencia": "Login de Gestão e Professor", "observacao": "Cobre o reteste do DEF-DCH-008 (Ricardo); combinar com ele."
+    },
+    {
+      "id": "CT-002-10", "hu": "HU-002", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "seção 2",
+      "cenario": "Tela Permissões: editável pelo Administrador e fechada para os outros perfis",
+      "prioridade": "Média", "tipo": "automatizado", "perfil": "Administrador, Gestão", "massa": ["MD-01", "MD-02"],
+      "pre_condicoes": [],
+      "passos": ["Admin abre Permissões e vê a matriz editável (sem salvar)", "Gestão abre /permissoes"],
+      "esperado": "Admin vê a matriz; Gestão recebe 403 e não tem o item no menu.",
+      "dependencia": "Login de Gestão para a 2ª parte", "observacao": "Decisão aceita: Permissões editável pelo Admin."
+    },
+    {
+      "id": "CT-003-01", "hu": "HU-003", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RN-04.1, HU-003 crit. 2",
+      "cenario": "Texto da tela de acesso não disponível",
+      "prioridade": "Alta", "tipo": "automatizado", "perfil": "sem sessão", "massa": [],
+      "pre_condicoes": [],
+      "passos": ["Abrir /welcome/acessoNegado"],
+      "esperado": "'Acesso não disponível.' e 'Seu usuário não possui cadastro no sistema Diário de Classe Hospitalar. Procure a gestão da EMTI Hospitalar Semear para solicitar o cadastro.' idênticos ao RN-04.1; botão 'Sair com segurança'.",
+      "dependencia": null, "observacao": "Confere só o texto, sem passar pelo Conecta. O fluxo completo está no CT-003-02."
+    },
+    {
+      "id": "CT-003-02", "hu": "HU-003", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RN-04.1, HU-003 crit. 1",
+      "cenario": "CPF autenticado no Conecta sem cadastro no sistema",
+      "prioridade": "Alta", "tipo": "manual", "perfil": "sem cadastro", "massa": ["MD-06"],
+      "pre_condicoes": ["Conta de teste no Conecta para o MD-06"],
+      "passos": ["Entrar com CPF e senha do Conecta do MD-06"],
+      "esperado": "URL /welcome/acessoNegado com o texto do RN-04.1; nenhuma sessão do sistema criada.",
+      "dependencia": "client_secret do Conecta", "observacao": null
+    },
+    {
+      "id": "CT-003-03", "hu": "HU-003", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-003 crit. 3",
+      "cenario": "Usuário inativo recebe a mesma mensagem",
+      "prioridade": "Alta", "tipo": "manual", "perfil": "Professor inativo", "massa": ["MD-04"],
+      "pre_condicoes": ["MD-04 inativo no sistema e com conta no Conecta"],
+      "passos": ["Entrar com CPF e senha do Conecta do MD-04"],
+      "esperado": "Mesma tela e mesmo texto do CT-003-02.",
+      "dependencia": "client_secret do Conecta", "observacao": null
+    },
+    {
+      "id": "CT-003-04", "hu": "HU-003", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-003 crit. 4",
+      "cenario": "'Sair com segurança' encerra a sessão no Conecta",
+      "prioridade": "Média", "tipo": "manual", "perfil": "sem cadastro", "massa": ["MD-06"],
+      "pre_condicoes": ["Tela de acesso não disponível aberta após login pelo Conecta"],
+      "passos": ["Clicar em 'Sair com segurança'", "Conferir a sessão no Conecta"],
+      "esperado": "Volta ao login do sistema e a sessão do Keycloak é encerrada.",
+      "dependencia": "client_secret do Conecta", "observacao": null
+    },
+    {
+      "id": "CT-003-05", "hu": "HU-003", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "HU-003 crit. 5, RF-04",
+      "cenario": "Tentativa sem cadastro registrada na auditoria",
+      "prioridade": "Média", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-04", "MD-06"],
+      "pre_condicoes": ["CT-003-02 e CT-003-03 executados"],
+      "passos": ["Consultar a Auditoria (ou tb_log no banco local)"],
+      "esperado": "Registros 'login_negado_sem_cadastro' e 'login_negado_cadastro_inativo' com data e hora.",
+      "dependencia": "client_secret do Conecta", "observacao": "Leitura do código: o CPF completo vai em log_adicionais (Welcome_model.php:54). Ponto LGPD a confirmar (mascarar na evidência)."
+    },
+    {
+      "id": "CT-003-06", "hu": "HU-003", "epico": "E1 - Autenticação e Acesso", "rastreabilidade": "RN-04.1",
+      "cenario": "Admin principal inativado",
+      "prioridade": "Baixa", "tipo": "automatizado", "perfil": "Administrador", "massa": ["MD-01"],
+      "pre_condicoes": ["Só em banco local descartável; inativar e reativar o MD-01 com registro no manifest"],
+      "passos": ["Inativar o MD-01 no banco local", "Entrar com a senha local", "Reativar"],
+      "esperado": "A HU pede a mensagem do RN-04.1 para inativos; registrar o que aparece.",
+      "dependencia": "Aprovação do Vinicius para alterar o admin no banco local", "observacao": "Leitura do código: o caminho do sentinela cai em 'Credenciais inválidas' (Welcome.php:46-49)."
+    }
+  ]
+}
